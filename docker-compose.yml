@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  node:
+    build: 
+      context: ./
+      dockerfile: node/Dockerfile
+    ports: 
+      - 8081:8081
+
+  spring:
+    build: 
+      context: ./
+      dockerfile: spring-boot/Dockerfile
+    ports: 
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/demodb
+      - APP_NODE_URL=http://node:8081/
+    depends_on:
+      - "db"
+      - "node"
+
+  db:
+    image: postgres:10-alpine
+    # image: postgres:10
+    restart: always
+    environment:
+      - POSTGRES_DB=demodb
+      - POSTGRES_USER=demouser
+      - POSTGRES_PASSWORD=DemoPa$$
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - 5432:5432
